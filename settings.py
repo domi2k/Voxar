@@ -53,7 +53,7 @@ def setup_logger():
     logger.addHandler(console_handler)
 
     file_handler = logging.handlers.RotatingFileHandler(
-        filename="discord.log",
+        filename="logs/discord.log",
         encoding="utf-8",
         maxBytes=32 * 1024 * 1024,
         backupCount=5,

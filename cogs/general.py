@@ -10,7 +10,7 @@ class General(commands.Cog, name="general"):
     @app_commands.command(name="botinfo", description="Information about the bot")
     async def botinfo(self, interaction: discord.Interaction) -> None:
         embed = discord.Embed(description="",
-                              color=0x000000)
+                              color=0x2b2d31)
         embed.set_thumbnail(url="")
         embed.set_author(name="Voxar")
         embed.add_field(name="Developer:", value="domi2k", inline=True)

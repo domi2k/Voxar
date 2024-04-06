@@ -28,7 +28,7 @@ class Owner(commands.Cog, name="owner"):
 
             synced_to = 'globally' if spec is None else 'to the current guild.'
             embed = discord.Embed(title=f"Synced {len(synced)} commands {synced_to}",
-                                  color=0x000000)
+                                  color=0x2b2d31)
             await ctx.send(embed=embed)
             return
 
@@ -42,7 +42,7 @@ class Owner(commands.Cog, name="owner"):
                 ret += 1
 
         embed = discord.Embed(title=f"Synced the tree to {ret}/{len(guilds)}.",
-                              color=0x000000)
+                              color=0x2b2d31)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -52,11 +52,11 @@ class Owner(commands.Cog, name="owner"):
         try:
             await self.bot.load_extension(f"cogs.{cog}")
             embed = discord.Embed(title=f"Successfully loaded the `{cog}` cog.",
-                                  color=0x000000)
+                                  color=0x2b2d31)
         except Exception as e:
             embed = discord.Embed(title=f'Could not load the `{cog}` cog.',
                                   description=e,
-                                  color=0x000000)
+                                  color=0x2b2d31)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -66,11 +66,11 @@ class Owner(commands.Cog, name="owner"):
         try:
             await self.bot.unload_extension(f"cogs.{cog}")
             embed = discord.Embed(title=f"Successfully unloaded the `{cog}` cog.",
-                                  color=0x000000)
+                                  color=0x2b2d31)
         except Exception as e:
             embed = discord.Embed(title=f"Could not unload the `{cog}` cog.",
                                   description=e,
-                                  color=0x000000)
+                                  color=0x2b2d31)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -80,11 +80,11 @@ class Owner(commands.Cog, name="owner"):
         try:
             await self.bot.reload_extension(f"cogs.{cog}")
             embed = discord.Embed(title=f"Successfully reloaded the `{cog}` cog.",
-                                  color=0x000000)
+                                  color=0x2b2d31)
         except Exception as e:
             embed = discord.Embed(title=f"Could not reload the `{cog}` cog.",
                                   description=e,
-                                  color=0x000000)
+                                  color=0x2b2d31)
         await ctx.send(embed=embed)
 
 
