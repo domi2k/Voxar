@@ -106,7 +106,6 @@ class Music(commands.Cog, name="music"):
     def __init__(self, bot) -> None:
         self.bot = bot
 
-
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
         if not payload.player:
