@@ -82,10 +82,7 @@ def create_progress_bar(current_length: int, total_length: int) -> str:
     return progress_bar
 
 
-def create_main_embed(track: wavelink.Playable, player: wavelink.player) -> discord.Embed:
-    username = track.extras.username
-    avatar_url = track.extras.avatar
-
+def create_main_embed(track: wavelink.Playable, player: wavelink.player, original=None) -> discord.Embed:
     current_time = f"{player.position // 60000}:{(player.position // 1000) % 60:02d}"
     total_time = f"{track.length // 60000}:{(track.length // 1000) % 60:02d}"
     progress_bar = create_progress_bar(player.position, track.length)
@@ -97,7 +94,13 @@ def create_main_embed(track: wavelink.Playable, player: wavelink.player) -> disc
     embed.set_author(name=f"♪ Now Playing │ {track.author}",
                      url=track.uri)
     embed.set_thumbnail(url=track.artwork)
-    embed.set_footer(text=f"Added by {username}", icon_url=avatar_url)
+
+    if hasattr(track.extras, "username") and hasattr(track.extras, "avatar"):
+        username = track.extras.username
+        avatar_url = track.extras.avatar
+        embed.set_footer(text=f"Added by {username}", icon_url=avatar_url)
+    elif original and original.recommended:
+        embed.set_footer(text=f"Recommended via {track.source}")
 
     return embed
 
@@ -105,6 +108,7 @@ def create_main_embed(track: wavelink.Playable, player: wavelink.player) -> disc
 class Music(commands.Cog, name="music"):
     def __init__(self, bot) -> None:
         self.bot = bot
+        self.autoplay = wavelink.AutoPlayMode.disabled
 
     @commands.Cog.listener()
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
@@ -112,9 +116,12 @@ class Music(commands.Cog, name="music"):
             return
 
         track = payload.track
-        embed = create_main_embed(track, payload.player)
+        original: wavelink.Playable | None = payload.original
 
-        payload.player.channel = self.bot.get_channel(track.extras.channel_id)
+        embed = create_main_embed(track, payload.player, original)
+
+        if hasattr(track.extras, "channel_id"):
+            payload.player.channel = self.bot.get_channel(track.extras.channel_id)
         message = await payload.player.channel.send(embed=embed, view=PlayingButtons())
 
         view = PlayingButtons(message=message)
@@ -130,7 +137,6 @@ class Music(commands.Cog, name="music"):
             return
 
         player: wavelink.Player = cast(wavelink.Player, interaction.guild.voice_client)
-
         if not player:
             try:
                 player = await interaction.user.voice.channel.connect(cls=wavelink.Player)
@@ -139,6 +145,14 @@ class Music(commands.Cog, name="music"):
                                                         ephemeral=True)
                 return
 
+        player.current_channel = interaction.guild.voice_client.channel
+        if player.current_channel != interaction.user.voice.channel:
+            await interaction.response.send_message(f"You need to be in the same voice channel as the bot to use this "
+                                                    f"command - {player.current_channel.mention}",
+                                                    ephemeral=True)
+            return
+
+        player.autoplay = self.autoplay
         tracks: wavelink.Search = await wavelink.Playable.search(search, source="ytsearch")
         if not tracks:
             await interaction.response.send_message("Could not find any tracks with that query. Please try again.",
